@@ -21,21 +21,21 @@
 (define (add-edge) (set! EDGES (+ EDGES 1)))
 (define (remove-edge) (set! EDGES (max (- EDGES 1) 3)))
 
-(define (make-points edges radius)
+(define (make-points edges radius rotation)
   (build-list edges (lambda (i)
                       (make-object point%
-                                   (+ (* radius (cos (* 2 pi (/ i edges)))) (/ WINDOW-WIDTH (* SCALE 2)))
-                                   (+ (* radius (sin (* 2 pi (/ i edges)))) (/ WINDOW-HEIGHT (* SCALE 2)))))))
+                                   (+ (* radius (cos (+ (* 2 pi (/ i edges)) rotation))) (/ WINDOW-WIDTH (* SCALE 2)))
+                                   (+ (* radius (sin (+ (* 2 pi (/ i edges)) rotation))) (/ WINDOW-HEIGHT (* SCALE 2)))))))
 
 (define my-canvas%
   (class canvas%
     (define/override (on-char event)
-      (define key (send event get-key-code))
-      (cond
-        ([equal? key 'left] '())
-        ([equal? key 'right] '())
-        ([equal? key 'up] (add-edge))
-        ([equal? key 'down] (remove-edge)))
+      (let ([key (send event get-key-code)])
+        (cond
+          ([equal? key 'left] '())
+          ([equal? key 'right] '())
+          ([equal? key 'up] (add-edge))
+          ([equal? key 'down] (remove-edge))))
       (send this refresh))
     (super-new)))
 
@@ -43,9 +43,9 @@
   (send dc set-brush COLOR-ORANGE 'solid)
   (send dc set-pen COLOR-ORANGE BORDER-WIDTH 'hilite)
   (send dc set-text-foreground "white")
-  (let ([points (make-points EDGES RADIUS)])
-    (send dc draw-polygon points)))
 
+  (let ([points (make-points EDGES RADIUS 0)])
+    (send dc draw-polygon points)))
 
 (new my-canvas% [parent frame]
      [paint-callback
